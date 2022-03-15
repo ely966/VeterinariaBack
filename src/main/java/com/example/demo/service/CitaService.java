@@ -1,13 +1,21 @@
 package com.example.demo.service;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import com.example.demo.error.ApiError;
+
+import com.example.demo.error.CitaYaExisteException;
 
 import com.example.demo.model.Cita;
 import com.example.demo.model.CreadencialesCitaConId;
@@ -16,6 +24,7 @@ import com.example.demo.model.Mascota;
 import com.example.demo.model.User;
 import com.example.demo.repository.CitasRepository;
 import com.example.demo.repository.MascotaRepository;
+
 
 @Primary
 @Service("CitaService")
@@ -26,22 +35,37 @@ public class CitaService {
 	 
 	 
 	 /**
-	  * Añade una nueva cita
+	  * Añade una nueva cita. Comprueba que la fecha y hora no coincida con otra cita ya existente en el banner
 	  * @param cita
 	  * @param usuario,cita
-	  * @return cita nueva
+	  * @return cita nueva, pero si ya esta recogida una cita con a fecha seleccionada, volvera una cita vacia, para que salte la exception en el controlador
 	  */
 	public Cita addCita(CredencialesCita cita,User usuario, Long pet) {
 		Cita nuevaCita = new Cita();
-		nuevaCita.setCliente(usuario);
-		nuevaCita.setFecha(cita.getFecha());
-		nuevaCita.setHora(cita.getFecha());
-		nuevaCita.setPet(mascotaRepo.findById(pet).get());
-		//mascotaServi.encontrarId(pet)
-		nuevaCita.setMotivo(cita.getMotivo());
-		citaRepo.save(nuevaCita);
-		return nuevaCita;
+
+			/**Recogeremos aqui las citas que tenga la misma fecha**/
+			Cita citaConFechaCompleta=null;
+			citaConFechaCompleta=citaRepo.findByFechaCompleta(cita.getFecha()).orElse(null);
+			if (citaConFechaCompleta ==null) {//Si esa fecha esta disponible
+				/**Añadimos cada datos de la cita**/
+				nuevaCita.setCliente(usuario);
+				/**Debemos ir comprobando la fecha**/
+				nuevaCita.setFecha(cita.getFecha());
+				nuevaCita.setHora(cita.getFecha());
+				nuevaCita.setFechaCompleta(cita.getFecha());
+				nuevaCita.setPet(mascotaRepo.findById(pet).get());
+				nuevaCita.setMotivo(cita.getMotivo());
+				/**Guardamos la cita**/
+				citaRepo.save(nuevaCita);
+				return nuevaCita;
+			}else {
+				//throw new CitaYaExisteException();
+				return nuevaCita;
+			}	
 	}
+	
+	
+
 	
 	/**
 	 * Encontrar una cita por su id
@@ -130,7 +154,7 @@ public class CitaService {
 		citaEditada.setCliente(usuario);
 		citaEditada.setFecha(cita.getFecha());
 		citaEditada.setHora(cita.getFecha());
-		
+		citaEditada.setFechaCompleta(cita.getFecha());
 		Mascota mascota= mascotaServi.encontrarId(cita.getPetid());
 		citaEditada.setPet(mascotaServi.encontrarId(cita.getPetid()));
 		citaEditada.setMotivo(cita.getMotivo());
@@ -151,4 +175,21 @@ public class CitaService {
 		return citas;
 	}
 	
+	
+	
+	
+    //*Exception cuando no ha podido crear la mascota**//            @Override
+
+    @ExceptionHandler(CitaYaExisteException.class)
+	public ResponseEntity<ApiError> handlecitaYaExisteException(CitaYaExisteException  ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+    
+
+    
 }

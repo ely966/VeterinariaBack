@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,8 +27,10 @@ import com.example.demo.error.ApiError;
 import com.example.demo.error.ComprobarEmailNoexisteException;
 import com.example.demo.error.CredencialesInvalidasException;
 import com.example.demo.error.EmailExistedException;
+import com.example.demo.error.NoTokenException;
 import com.example.demo.error.UsuarioNoExisteException;
 import com.example.demo.model.LoginCredentials;
+import com.example.demo.model.Mascota;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.security.JWTUtil;
@@ -46,7 +49,7 @@ public class AuthController {
     @Autowired private AuthenticationManager authManager;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private UserService userService;
-   
+    @Autowired private UserService serviUser;
 
     
     
@@ -134,6 +137,27 @@ public class AuthController {
         	throw new ComprobarEmailNoexisteException();
         }
     	 
+    }
+    
+    
+    @GetMapping("/auth/comprobarToken")
+    public User comprobarSiTokenValido(){
+    	
+    	try {
+    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User usuario = serviUser.recogerInfoUserPorEmail(email);
+            if(usuario != null) {/**Si el usuario no es null**/
+            	return usuario;
+            }else {
+            	/**No existe el usuario**/
+            	 throw new UsuarioNoExisteException() ;
+            }
+            
+    	}catch (AuthenticationException authExc){
+            throw new NoTokenException();
+            //UsuarioNoExisteException() ;
+        }    
+ 
     }
     
     

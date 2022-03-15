@@ -11,6 +11,7 @@ import com.example.demo.model.CredencialesEditarUser;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 
+
 @Primary
 @Service("UserService")
 public class UserService {
@@ -117,6 +118,15 @@ public class UserService {
 			}
 			}
 		return false;
+	}
+	
+	
+	//encriptar pass
+	
+	public String encriptar(String pass) {
+		 
+		 String encodedPass = passwordEncoder.encode(pass);
+		 return encodedPass;
 	}
 	
 	public void init () {

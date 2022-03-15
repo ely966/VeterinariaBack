@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.CitaExistedException;
+import com.example.demo.error.CitaYaExisteException;
 import com.example.demo.error.CredencialesInvalidasException;
 import com.example.demo.error.EmailExistedException;
 import com.example.demo.error.MascotaExistedException;
@@ -292,6 +293,9 @@ public class UserController {
             Boolean pet= mascotaServi.comprobarporId(id);
             if (pet) {//*Si la mascota existe**/
             	Cita nuevaCita=citaServi.addCita(cita, usuario, id);
+            	if(nuevaCita.getId() == null) {
+            		throw new CitaYaExisteException();
+            	}
             	return nuevaCita;
             	
         	}else {//Lanza la exception si no existe la amscota
@@ -311,7 +315,7 @@ public class UserController {
     * @return lista de citas
     */
     
-    @GetMapping("/cliente/mascota/cita")
+    @GetMapping("/cliente/cita")
     public List<Cita> citasDelUsuario(){
     	
     	try {
@@ -525,5 +529,14 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
     
-   
+    @ExceptionHandler(CitaYaExisteException.class)
+	public ResponseEntity<ApiError> handlecitaYaExisteException(CitaYaExisteException  ex) {
+		ApiError apiError = new ApiError();
+		apiError.setEstado(HttpStatus.CONFLICT);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(ex.getMessage());
+		
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+	}
+    
 }

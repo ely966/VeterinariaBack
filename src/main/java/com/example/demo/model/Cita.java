@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -49,6 +50,11 @@ public class Cita {
 	@Temporal(TemporalType.TIME)
 	private Date hora;
 	private String motivo;
+
+
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date fechaCompleta;
 	
 	
 	public Cita(Mascota pet, Date fecha, Time hora, String motivo) {

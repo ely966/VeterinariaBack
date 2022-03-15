@@ -41,6 +41,7 @@ public class User {
 	@OneToMany(mappedBy="cliente")
 	@JsonManagedReference("userCita")
 	private List<Cita>citas;
+	private String role;
 	
 	
 
@@ -55,6 +56,18 @@ public class User {
 		this.password = password;
 		
 	}
+	public User(String nombre, String email, String direccion, String password, String role) {
+		super();
+		//this.userName = userName;
+		this.nombre = nombre;
+		this.email = email;
+		this.direccion=direccion;
+		this.password = password;
+		this.role=role;
+		
+	}
+
+	
 	public User(String nombre, String email, String password, String direccion) {
 		super();
 		//this.userName = userName;

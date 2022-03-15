@@ -12,7 +12,7 @@ public class NoTokenException extends RuntimeException{
 	private static final long serialVersionUID = 4224302871686279935L;
 
 	public NoTokenException() {
-		super("No usuario");
+		super("Token no es valido");
 	}
 
 }

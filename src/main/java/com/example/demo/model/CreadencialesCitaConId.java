@@ -20,7 +20,7 @@ import lombok.*;
 @Getter
 @Setter
 @AllArgsConstructor
-
+/**Esta nos servirá para cuando editemos la cita ya que tenemos que recoger su id tmabien*/
 public class CreadencialesCitaConId {
 	private Long id;
 	private Date fecha;
