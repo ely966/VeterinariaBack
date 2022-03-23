@@ -48,7 +48,6 @@ public class AuthController {
     @Autowired private JWTUtil jwtUtil;
     @Autowired private AuthenticationManager authManager;
     @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private UserService userService;
     @Autowired private UserService serviUser;
 
     
@@ -65,16 +64,18 @@ public class AuthController {
     	String encodedPass = passwordEncoder.encode(user.getPassword());
         
     	  /**comprobar que el correo que usa este nuevo usuario, no existe en la base de datos **/
-        String token =null;
-       Optional<User> usercorreo = userRepo.findByEmail(user.getEmail());
-       if(usercorreo.isEmpty()) {/**Si el correo no lo tiene ninguna otro usuario**/
-    	   /**comprobar que el username que usa este  usuario, no existe en la base de datos **/
-    	   token = jwtUtil.generateToken(user.getEmail());
-           /**encriptamos la contraseña**/
-    	   user.setPassword(encodedPass);
-    	   /**Guardamos el usuario con la pass encifrada**/
-    	   user= userRepo.save(user); 
-    	   return Collections.singletonMap("jwt-token", token);
+        	String token =null;
+        	Optional<User> usercorreo = userRepo.findByEmail(user.getEmail());
+        	if(usercorreo.isEmpty()) {/**Si el correo no lo tiene ninguna otro usuario**/
+	    	   /**comprobar que el username que usa este  usuario, no existe en la base de datos **/
+	    	   token = jwtUtil.generateToken(user.getEmail());
+	           /**encriptamos la contraseña**/
+	    	   user.setPassword(encodedPass);
+	    	   /**Añadimos el roll**/
+	    	   user.setRole("CLIENTE");
+	    	   /**Guardamos el usuario con la pass encifrada**/
+	    	   user= userRepo.save(user); 
+	    	   return Collections.singletonMap("jwt-token", token);
        }
        else {
     	   throw new EmailExistedException();
@@ -158,6 +159,17 @@ public class AuthController {
             //UsuarioNoExisteException() ;
         }    
  
+    }
+    
+    @GetMapping("/auth/info")
+    public User infoUser () {
+    	try {
+    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            
+            return serviUser.recogerInfoUserPorEmail(email);
+    	}catch (AuthenticationException authExc){
+       	 	throw new UsuarioNoExisteException() ;
+       } 
     }
     
     

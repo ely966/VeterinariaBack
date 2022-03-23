@@ -21,6 +21,8 @@ public class UserService {
 	
     @Autowired private PasswordEncoder passwordEncoder;
 
+    /** ROL CLIENTE **/
+    
     /**
      * Mostrar todos los usuarios
      * @return lista de usuario
@@ -63,19 +65,12 @@ public class UserService {
 	 * @return
 	 */
 	public User edit (CredencialesEditarUser datosUserNuevo, User usuario) {
-			User usuarioEditado = new User();
 			
-			usuarioEditado.setId(usuario.getId());
-			usuarioEditado.setMascotas(usuario.getMascotas());
-			usuarioEditado.setCitas(usuario.getCitas());
-			usuarioEditado.setEmail(usuario.getEmail());
-			//usuarioEditado.setDireccion(usuario.getUsername());
-			usuarioEditado.setPassword(usuario.getPassword());
 			//datos nuevos
-			usuarioEditado.setDireccion(datosUserNuevo.getDireccion());
-			usuarioEditado.setNombre(datosUserNuevo.getNombre());
-			userRepo.save(usuarioEditado);
-			return usuarioEditado;
+			usuario.setDireccion(datosUserNuevo.getDireccion());
+			usuario.setNombre(datosUserNuevo.getNombre());
+			userRepo.save(usuario);
+			return usuario;
 			
 		}
 	/**
@@ -119,6 +114,27 @@ public class UserService {
 			}
 		return false;
 	}
+	
+	/**Rol Administrador **/
+	
+    /**
+     * Mostrar todos los usuarios con rol administrador
+     * @return lista de administradores
+     */
+	public List<User> findAllAdmin(){
+		return userRepo.findByRole("ADMIN").get();
+	}
+	
+	/**
+	 * Mostrar administrador  por su id
+	 * @param id
+	 * @return Admin que le corresponda el id
+	 */
+	public User findByIdAdmin (Long id) {
+		return userRepo.getById(id);
+	}
+	
+	
 	
 	
 	//encriptar pass

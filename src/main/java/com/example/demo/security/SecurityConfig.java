@@ -36,7 +36,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers("/cliente/**").hasRole("CLIENTE") 
         .antMatchers("/cliente/mascota/**").hasRole("CLIENTE") 
         /**Todo usuario de rol user puede acceder a lo que este debajo de cliente**/
-        .antMatchers("/mascota/**").hasRole("CLIENTE") 
+        .antMatchers("/mascota/**").hasRole("CLIENTE")
+        /**Administrativo**/
+        .antMatchers("/admin/**").hasRole("ADMIN") 
         .and()
         .userDetailsService(uds)
         .exceptionHandling()

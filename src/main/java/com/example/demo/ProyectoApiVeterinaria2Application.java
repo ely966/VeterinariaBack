@@ -16,7 +16,7 @@ import com.example.demo.service.UserService;
 
 @SpringBootApplication
 public class ProyectoApiVeterinaria2Application {
-    //@Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private PasswordEncoder passwordEncoder;
     
 	public static void main(String[] args) {
 		SpringApplication.run(ProyectoApiVeterinaria2Application.class, args);
@@ -30,15 +30,15 @@ public class ProyectoApiVeterinaria2Application {
 	 * @param userRepo
 	 * @return
 	 */
-	//@Bean
-	//CommandLineRunner iniciarAdmins( UserRepo userRepo) {return (args) ->{
+	@Bean
+	CommandLineRunner iniciarAdmins( UserRepo userRepo) {return (args) ->{
 		
 		//String encodedPassword = encoder.encode("UserPassword");  
-		//userRepo.saveAll(Arrays.asList(new User("ely", "ely@gmail.com", "calle Murrillo", passwordEncoder.encode("ely"), "admin"),
-		//					new User("admin", "admin@gmail.com", "Calle real",passwordEncoder.encode("admin"), "admin")));
-		//};
+		userRepo.saveAll(Arrays.asList(new User("ely", "ely@gmail.com", "calle Murrillo", passwordEncoder.encode("ely"), "ADMIN"),
+							new User("admin", "admin@gmail.com", "Calle real",passwordEncoder.encode("admin"), "ADMIN")));
+		};
 							
-	//}
+	}
 	
 }
 

@@ -32,6 +32,7 @@ public class MascotaService {
 		newMascota.setRaza(mascota.getRaza());
 		newMascota.setEdad(mascota.getEdad());
 		newMascota.setUsuario(cliente);
+		newMascota.setImagen(mascota.getImagen());
 		mascotaRepo.save(newMascota);
 		List<Mascota>pets=mascotaRepo.findAll();
 		return newMascota;
