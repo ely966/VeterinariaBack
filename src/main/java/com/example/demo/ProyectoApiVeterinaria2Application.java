@@ -32,11 +32,20 @@ public class ProyectoApiVeterinaria2Application {
 	 */
 	@Bean
 	CommandLineRunner iniciarAdmins( UserRepo userRepo) {return (args) ->{
-		
+		/**Crear por defecto 2 administradores**/
 		//String encodedPassword = encoder.encode("UserPassword");  
-		userRepo.saveAll(Arrays.asList(new User("ely", "ely@gmail.com", "calle Murrillo", passwordEncoder.encode("ely"), "ADMIN"),
-							new User("admin", "admin@gmail.com", "Calle real",passwordEncoder.encode("admin"), "ADMIN")));
+		userRepo.saveAll(Arrays.asList(new User("ely", "aDveTminsdgddgfg@outlook.com", "calle real", passwordEncoder.encode("adminVeterinario"), "ADMIN"),
+							new User("admin", "admin@gmail.com", "Calle real",passwordEncoder.encode("admin"), "ADMIN"),
+							/**Crear por defecto 3 veterinarios**/
+							new User("Juan", "juan@gmail.com", "Calle real",passwordEncoder.encode("admin"), "VETERINARIO","Diagnosticos"),
+							new User("luisa", "luisa@gmail.com", "Calle real",passwordEncoder.encode("luisa"), "VETERINARIO","Operaciones"),
+							new User("Mariana", "mariana@gmail.com", "Calle Virgen Macarena",passwordEncoder.encode("luisa"), "VETERINARIO","General"),
+							/**Crear por defecto 2 cliente**/
+							new User("lucinda", "lucinda23@gmail.com", "Calle real",passwordEncoder.encode("lucinda"), "CLIENTE")
+							
+							));
 		};
+		
 							
 	}
 	

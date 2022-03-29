@@ -43,6 +43,9 @@ public class Cita {
 	private User cliente;
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Mascota pet;
+	
+	//Añadir veterinario
+	private Long idVeterinario;
 	@Temporal(TemporalType.DATE)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@JsonFormat(pattern = "yyyy-MM-dd ", timezone = "GMT+8")

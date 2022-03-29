@@ -54,6 +54,7 @@ public class CitaService {
 				nuevaCita.setHora(cita.getFecha());
 				nuevaCita.setFechaCompleta(cita.getFecha());
 				nuevaCita.setPet(mascotaRepo.findById(pet).get());
+				nuevaCita.setIdVeterinario(cita.getIdVeterinario());
 				nuevaCita.setMotivo(cita.getMotivo());
 				/**Guardamos la cita**/
 				citaRepo.save(nuevaCita);
@@ -175,7 +176,13 @@ public class CitaService {
 		return citas;
 	}
 	
-	
+	public List<Cita> mostrarPorVeterinario(Long idV){
+		List<Cita> citasAll = citaRepo.findAll();
+		List<Cita> citas = new ArrayList();
+		citas= citaRepo.findByIdVeterinario(idV).get();
+		return citas;
+	}
+
 	
 	
     //*Exception cuando no ha podido crear la mascota**//            @Override

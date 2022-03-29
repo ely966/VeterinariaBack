@@ -75,6 +75,17 @@ public class UserController {
        } 
     }
     
+    @GetMapping("/cliente/info")
+    public User infoCliente () {
+    	try {
+    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            
+            return serviUser.recogerInfoUserPorEmail(email);
+    	}catch (AuthenticationException authExc){
+       	 	throw new UsuarioNoExisteException() ;
+       } 
+    }
+  
     /**
      * Editar al cliente. Proceso porque salta inacesible
      * @param cliente
@@ -358,7 +369,21 @@ public class UserController {
     		throw new UsuarioNoExisteException() ;
         }      
     }
-    
+    /**
+	   * Devuelve la lista de usuario con el rol de veterinario
+	   * @return lista de veterinario
+	   */
+	  @GetMapping("/cliente/veterinario")
+	    public List<User> listarVeterinarios () {
+	    	try {
+	    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	            
+	            return serviUser.findAllVeterinarios();
+	    	}catch (AuthenticationException authExc){
+	       	 	throw new UsuarioNoExisteException() ;
+	       } 
+	    }
+	  
     
     /**
      * Sacar informacion de una cita

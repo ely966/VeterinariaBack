@@ -34,19 +34,20 @@ public class User {
 	//private String userName;
 	private String nombre;
 	
-	private String email;
+	private String email;//correo que es el usuario apra ingresar a la aplicación
 	private String direccion;
+	private int telefono;
 	//Evita que el campo password se incluya en el JSON de respuesta
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY) /**Que la pass no se incluya en el json respuesta**/
 	private String password;
 	@OneToMany(mappedBy="usuario")
 	@JsonManagedReference("userMascota") 
-	private List<Mascota> mascotas;
+	private List<Mascota> mascotas; //lista de mascota usado por clientes
 	@OneToMany(mappedBy="cliente")
 	@JsonManagedReference("userCita")
-	private List<Cita>citas;
-	private String role;
-	
+	private List<Cita>citas; //lista de citas usado sobretodo en clientes
+	private String role; //Roll del usuario
+	private String tipo;//para veterinario saber el tipo
 	
 
 	
@@ -70,7 +71,17 @@ public class User {
 		this.role=role;
 		
 	}
-
+	public User(String nombre, String email, String direccion, String password, String role, String tipo) {
+		super();
+		//this.userName = userName;
+		this.nombre = nombre;
+		this.email = email;
+		this.direccion=direccion;
+		this.password = password;
+		this.role=role;
+		this.tipo= tipo;
+		
+	}
 	
 	public User(String nombre, String email, String password, String direccion) {
 		super();

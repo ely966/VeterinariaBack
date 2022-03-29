@@ -19,6 +19,7 @@ public class CredencialesCita {
 	private Date fecha;
 	private Long petid;
 	private String motivo;
+	private Long idVeterinario;
 	
 	public CredencialesCita() {
 		super();
