@@ -83,9 +83,9 @@ public class UserService {
 		usuario.setDireccion(datosUserNuevo.getDireccion());
 		usuario.setNombre(datosUserNuevo.getNombre());
 		usuario.setTelefono(usuario.getTelefono());
-		if(usuario.getPassword() !=null){
+		if(datosUserNuevo.getPassword() !=null){
 			/*Encriptar la contraseña*/
-			String passEncrip = passwordEncoder.encode(usuario.getPassword());
+			String passEncrip = passwordEncoder.encode(datosUserNuevo.getPassword());
 			usuario.setPassword(passEncrip);
 		}
 		

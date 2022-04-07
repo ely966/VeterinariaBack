@@ -13,8 +13,11 @@ import lombok.Setter;
 
 public class CredencialesEditarUser {
 	private String direccion;
+	private String password;
 	private String nombre;
-	//private String password;
+	private int telefono;
+	private String role;
+	
 	
 	public CredencialesEditarUser() {
 		super();

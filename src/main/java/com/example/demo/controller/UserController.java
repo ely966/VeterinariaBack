@@ -98,11 +98,11 @@ public class UserController {
      * @return el token por si cambia la contraseña, pues creamos otra vez el token
      */
     @PutMapping("/cliente")
-    public Map<String, Object> editarCliente (@RequestBody CredencialesEditarUser cliente) {
+    public Map<String, Object> editarCliente (@RequestBody CredencialesEditarUser clienteDatosEditado) {
     	try {
     		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             User usuario = userRepo.findByEmail(email).get();
-            serviUser.edit(cliente, usuario);
+            serviUser.edit(clienteDatosEditado, usuario);
             String token = jwtUtil.generateToken(usuario.getEmail());
 
             return Collections.singletonMap("jwt-token", token);

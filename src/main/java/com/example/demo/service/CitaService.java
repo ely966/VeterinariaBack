@@ -97,10 +97,14 @@ public class CitaService {
 	 * @return 
 	 */
 	public Cita delete(User usuario,Cita cita) {
+		
 		/**Eliminamos su union con la mascota**/
 		cita.setPet(null);
 		//**Eliminamos su union con cliente**/
 		cita.setCliente(null);
+		cita.setIdVeterinario(null);
+		//Borramos la fecha para que no salte la contradiccion de que, es una fecha del pasado si llega el caso
+		cita.setFecha(null);
 		//**Guardamos la cita sin uniones**/
 		citaRepo.save(cita);
 		citaRepo.delete(cita);/**Eliminamos la cita**/
@@ -154,9 +158,13 @@ public class CitaService {
 		Cita citaEditada = new Cita();
 		citaEditada.setId(idCita);
 		citaEditada.setCliente(usuario);
-		citaEditada.setFecha(cita.getFecha());
-		citaEditada.setHora(cita.getFecha());
-		citaEditada.setFechaCompleta(cita.getFecha());
+		//comprobamos si edito la fecha. Si esta vacio no se edita
+		if(cita.getFecha() == null) {
+			citaEditada.setFecha(cita.getFecha());
+			citaEditada.setHora(cita.getFecha());
+			citaEditada.setFechaCompleta(cita.getFecha());
+		}
+		
 		Mascota mascota= mascotaServi.encontrarId(cita.getPetid());
 		citaEditada.setPet(mascotaServi.encontrarId(cita.getPetid()));
 		citaEditada.setMotivo(cita.getMotivo());
