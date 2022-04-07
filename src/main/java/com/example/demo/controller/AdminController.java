@@ -67,7 +67,7 @@ public class AdminController {
 		    	   token = jwtUtil.generateToken(user.getEmail());
 		    	   //**Llamamos almetodo del servicio de adminServi el cual recogerá el usuario y su role
 		    	   //añadira la contraseña encriptada, su roll  y lo guardará en el repositorio//
-		    	   serviAdmin.agregarUser(user, "ADMIN");
+		    	   serviUser.agregarUser(user, "ADMIN");
 		    	   return Collections.singletonMap("jwt-token", token);
 		    	   }
 		        else {
@@ -99,7 +99,7 @@ public class AdminController {
 	    	try {
 	    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 	            
-	            return serviAdmin.recogerInfoUserPorEmail(email);
+	            return serviUser.recogerInfoUserPorEmail(email);
 	    	}catch (AuthenticationException authExc){
 	       	 	throw new UsuarioNoExisteException() ;
 	       } 
@@ -114,7 +114,7 @@ public class AdminController {
 	    public User editarAdmin (@RequestBody CredencialesEditarUser admin) {
 	    	try {
 	    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	            User usuario = serviAdmin.recogerInfoUserPorEmail(email);
+	            User usuario = serviUser.recogerInfoUserPorEmail(email);
 	            return serviUser.edit(admin, usuario);
 	    	}catch (AuthenticationException authExc){
 	       	 	throw new UsuarioNoExisteException() ;
@@ -143,7 +143,7 @@ public class AdminController {
 				    	token = jwtUtil.generateToken(user.getEmail());
 				    	//**Llamamos almetodo del servicio de adminServi el cual recogerá el usuario y su role
 				    	//añadira la contraseña encriptada, su roll  y lo guardará en el repositorio//
-				    	serviAdmin.agregarUser(user, "VETERINARIO");
+				    	serviUser.agregarUser(user, "VETERINARIO");
 				    	return Collections.singletonMap("jwt-token", token);
 		       }
 		       else {
@@ -196,7 +196,34 @@ public class AdminController {
 			    	
 			    }
 
-			  
+			  /**
+			     *Que un administrador puede borrar un admin
+			     * @param user
+			     * @return
+			     */
+				  @DeleteMapping("/admin/{id}") 
+				    public  ResponseEntity<?> deleteAdmin(@PathVariable Long id){
+				        
+				    	try {
+
+				    		/**comprobar que el correo que usa este admin,  existe en la base de datos **/
+				    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				            User usuario = serviUser.recogerInfoUserPorEmail(email);
+				            if (usuario !=null) {//si el admin existe
+				            	
+				            	serviUser.delete(id);
+				            	
+				            	return ResponseEntity.noContent().build();	
+				            }else {
+				            		throw new UsuarioNoExisteException();
+				           }
+				      
+				       }catch (AuthenticationException authExc){
+				       	throw new UsuarioNoExisteException() ;
+				       }
+				    	
+				    }
+	  
 		  /**
 		   * Devuelve la lista de usuario con el rol de ciente
 		   * @return lista de clientes

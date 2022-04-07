@@ -27,6 +27,7 @@ import com.example.demo.error.ApiError;
 import com.example.demo.error.ComprobarEmailNoexisteException;
 import com.example.demo.error.CredencialesInvalidasException;
 import com.example.demo.error.EmailExistedException;
+import com.example.demo.error.FechaanteriorException;
 import com.example.demo.error.NoTokenException;
 import com.example.demo.error.UsuarioNoExisteException;
 import com.example.demo.model.LoginCredentials;
@@ -73,8 +74,8 @@ public class AuthController {
 	    	   user.setPassword(encodedPass);
 	    	   /**Añadimos el roll**/
 	    	   user.setRole("CLIENTE");
-	    	   /**Guardamos el usuario con la pass encifrada**/
-	    	   user= userRepo.save(user); 
+	    	   /**Guardamos el usuario con la pass encifrada. Junto su roll, este caso cliente**/
+	    	   user= serviUser.agregarUser(user, "CLIENTE");
 	    	   return Collections.singletonMap("jwt-token", token);
        }
        else {
@@ -124,13 +125,13 @@ public class AuthController {
      * @return
      */
     @GetMapping("/auth/comprobar/{correo}")
-    public Optional<User> comprobarEmail(@PathVariable String correo){
+    public User comprobarEmail(@PathVariable String correo){
     	   /**activar init**/
-    	Optional<User> usuario;
+    	
     	try {
-    		usuario = userRepo.findByEmail(correo);
+    		User usuario = userRepo.findByEmail(correo).get();
     		//usuario = userRepo.findByEmail(correo).get();
-    		if (usuario.isEmpty()) {
+    		if (usuario == null) {
     			throw new UsuarioNoExisteException();
     		}return usuario;
            
@@ -192,6 +193,16 @@ public class AuthController {
     
     @ExceptionHandler(EmailExistedException.class)
    	public ResponseEntity<ApiError> handleEmailNoEncontrado(EmailExistedException  ex) {
+   		ApiError apiError = new ApiError();
+   		apiError.setEstado(HttpStatus.NOT_FOUND);
+   		apiError.setFecha(LocalDateTime.now());
+   		apiError.setMensaje(ex.getMessage());
+   		
+   		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+   	}
+    
+    @ExceptionHandler(FechaanteriorException.class)
+   	public ResponseEntity<ApiError> handleFechaAnterior(FechaanteriorException  ex) {
    		ApiError apiError = new ApiError();
    		apiError.setEstado(HttpStatus.NOT_FOUND);
    		apiError.setFecha(LocalDateTime.now());

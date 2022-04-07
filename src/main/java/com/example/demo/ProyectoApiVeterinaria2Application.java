@@ -34,14 +34,14 @@ public class ProyectoApiVeterinaria2Application {
 	CommandLineRunner iniciarAdmins( UserRepo userRepo) {return (args) ->{
 		/**Crear por defecto 2 administradores**/
 		//String encodedPassword = encoder.encode("UserPassword");  
-		userRepo.saveAll(Arrays.asList(new User("ely", "aDveTminsdgddgfg@outlook.com", "calle real", passwordEncoder.encode("adminVeterinario"), "ADMIN"),
-							new User("admin", "admin@gmail.com", "Calle real",passwordEncoder.encode("admin"), "ADMIN"),
+		userRepo.saveAll(Arrays.asList(new User("ely", "aDveTminsdgddgfg@outlook.com", "calle real n.4",664312789, passwordEncoder.encode("adminVeterinario"), "ADMIN"),
+							new User("admin", "admin@gmail.com", "Calle Virgen macarena p2 num.2",623567998,passwordEncoder.encode("admin"), "ADMIN"),
 							/**Crear por defecto 3 veterinarios**/
-							new User("Juan", "juan@gmail.com", "Calle real",passwordEncoder.encode("admin"), "VETERINARIO","Diagnosticos"),
-							new User("luisa", "luisa@gmail.com", "Calle real",passwordEncoder.encode("luisa"), "VETERINARIO","Operaciones"),
-							new User("Mariana", "mariana@gmail.com", "Calle Virgen Macarena",passwordEncoder.encode("luisa"), "VETERINARIO","General"),
+							new User("Juan", "juan@gmail.com", "Calle real p.82. num.2",667891221,passwordEncoder.encode("admin"), "VETERINARIO","Diagnosticos"),
+							new User("luisa", "luisa@gmail.com", "Calle real",678987123,passwordEncoder.encode("luisa"), "VETERINARIO","Operaciones"),
+							new User("Mariana", "mariana@gmail.com", "Calle Virgen Macarena",666231342, passwordEncoder.encode("mariana"), "VETERINARIO","General"),
 							/**Crear por defecto 2 cliente**/
-							new User("lucinda", "lucinda23@gmail.com", "Calle real",passwordEncoder.encode("lucinda"), "CLIENTE")
+							new User("lucinda", "lucinda23@gmail.com", "Calle real",611344990,passwordEncoder.encode("lucinda"), "CLIENTE")
 							
 							));
 		};

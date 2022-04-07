@@ -34,7 +34,7 @@ public class User {
 	//private String userName;
 	private String nombre;
 	
-	private String email;//correo que es el usuario apra ingresar a la aplicación
+	private String email;//Se identifica e user por el correo. El correo que es el usuario apra ingresar a la aplicación.
 	private String direccion;
 	private int telefono;
 	//Evita que el campo password se incluya en el JSON de respuesta
@@ -61,22 +61,25 @@ public class User {
 		this.password = password;
 		
 	}
-	public User(String nombre, String email, String direccion, String password, String role) {
+	public User(String nombre, String email, String direccion,int telefono, String password, String role) {
 		super();
 		//this.userName = userName;
 		this.nombre = nombre;
 		this.email = email;
 		this.direccion=direccion;
+		this.telefono=telefono;
 		this.password = password;
 		this.role=role;
 		
 	}
-	public User(String nombre, String email, String direccion, String password, String role, String tipo) {
+
+	public User(String nombre, String email, String direccion,int telefono, String password, String role, String tipo) {
 		super();
 		//this.userName = userName;
 		this.nombre = nombre;
 		this.email = email;
 		this.direccion=direccion;
+		this.telefono=telefono;
 		this.password = password;
 		this.role=role;
 		this.tipo= tipo;

@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,7 @@ import com.example.demo.error.CitaExistedException;
 import com.example.demo.error.CitaYaExisteException;
 import com.example.demo.error.CredencialesInvalidasException;
 import com.example.demo.error.EmailExistedException;
+import com.example.demo.error.FechaanteriorException;
 import com.example.demo.error.MascotaExistedException;
 import com.example.demo.error.MascotaNoExistedException;
 import com.example.demo.error.NoCreasMascotaException;
@@ -40,6 +44,7 @@ import com.example.demo.model.User;
 import com.example.demo.repository.CitasRepository;
 import com.example.demo.repository.MascotaRepository;
 import com.example.demo.repository.UserRepo;
+import com.example.demo.security.JWTUtil;
 import com.example.demo.service.CitaService;
 import com.example.demo.service.MascotaService;
 import com.example.demo.service.UserService;
@@ -55,6 +60,7 @@ public class UserController {
     @Autowired private CitaService citaServi;
     @Autowired private CitasRepository citaRepo;
     @Autowired private UserService serviUser;
+    @Autowired private JWTUtil jwtUtil;
    
    
     
@@ -89,14 +95,17 @@ public class UserController {
     /**
      * Editar al cliente. Proceso porque salta inacesible
      * @param cliente
-     * @return
+     * @return el token por si cambia la contraseña, pues creamos otra vez el token
      */
     @PutMapping("/cliente")
-    public User editarCliente (@RequestBody CredencialesEditarUser cliente) {
+    public Map<String, Object> editarCliente (@RequestBody CredencialesEditarUser cliente) {
     	try {
     		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             User usuario = userRepo.findByEmail(email).get();
-            return serviUser.edit(cliente, usuario);
+            serviUser.edit(cliente, usuario);
+            String token = jwtUtil.generateToken(usuario.getEmail());
+
+            return Collections.singletonMap("jwt-token", token);
     	}catch (AuthenticationException authExc){
        	 	throw new UsuarioNoExisteException() ;
        } 
@@ -118,6 +127,8 @@ public class UserController {
         	 throw new UsuarioNoExisteException() ;
         } 
     }
+    
+    
     
     
     
@@ -302,9 +313,22 @@ public class UserController {
             User usuario = serviUser.recogerInfoUserPorEmail(email);
         	
             Boolean pet= mascotaServi.comprobarporId(id);
-            if (pet) {//*Si la mascota existe**/
+
+
+                if (pet) {//*Si la mascota existe**/
+                	Date fechaactual = new Date();
+                	
+                	//SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+                	//Date fechanow=Date.now();
+                	java.util.Date fecha = new Date();
+                	 //comprueba si la fecha introducida, es anterior a la fecha actual de hoy, en ese caso que salte una exception     
+                	if(fecha.after(cita.getFecha())){
+                		 throw new FechaanteriorException() ;
+                	}else{
+                	    System.out.println("Fecha actual mayor");
+                	}
             	Cita nuevaCita=citaServi.addCita(cita, usuario, id);
-            	if(nuevaCita.getId() == null) {
+            	if(nuevaCita.getId() == null) {//si es null, es que no se creo la cita . Sera orque la cita ya existia
             		throw new CitaYaExisteException();
             	}
             	return nuevaCita;
@@ -506,6 +530,15 @@ public class UserController {
 		
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
+	  @ExceptionHandler(FechaanteriorException.class)
+		public ResponseEntity<ApiError> handleFechaanterior(FechaanteriorException  ex) {
+			ApiError apiError = new ApiError();
+			apiError.setEstado(HttpStatus.NOT_FOUND);
+			apiError.setFecha(LocalDateTime.now());
+			apiError.setMensaje(ex.getMessage());
+			
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	  }
     
 	@ExceptionHandler(JsonMappingException.class)
 	public ResponseEntity<ApiError> handleJsonMappingException(JsonMappingException ex) {
@@ -516,8 +549,7 @@ public class UserController {
 		
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 	}  
-	
-	
+
 	/**-------Mascota-----------------**/
 	   //*Exception de cuando la mascota no existe**//
     @ExceptionHandler(MascotaNoExistedException.class)

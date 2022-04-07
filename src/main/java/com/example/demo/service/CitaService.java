@@ -9,14 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.demo.error.ApiError;
 
 import com.example.demo.error.CitaYaExisteException;
-
+import com.example.demo.error.UsuarioNoExisteException;
 import com.example.demo.model.Cita;
 import com.example.demo.model.CreadencialesCitaConId;
 import com.example.demo.model.CredencialesCita;
@@ -57,12 +57,13 @@ public class CitaService {
 				nuevaCita.setIdVeterinario(cita.getIdVeterinario());
 				nuevaCita.setMotivo(cita.getMotivo());
 				/**Guardamos la cita**/
-				citaRepo.save(nuevaCita);
+				
+					citaRepo.save(nuevaCita);
+				
+				
+			}
 				return nuevaCita;
-			}else {
-				//throw new CitaYaExisteException();
-				return nuevaCita;
-			}	
+			
 	}
 	
 	
