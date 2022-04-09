@@ -93,7 +93,10 @@ public class AdminController {
 	       	 	throw new UsuarioNoExisteException() ;
 	       } 
 	    }
-	  
+	  /**
+	   * Recoge la informacion del administrador
+	   * @return la informaicon del usuario con rol de administrador
+	   */
 	  @GetMapping("/admin/info")
 	    public User infoAdmin () {
 	    	try {
@@ -121,8 +124,11 @@ public class AdminController {
 	       } 
 	    	
 	    }
+/**=================================================================================================**/
 	    
+ 
 	    
+/*=======================================================================================*/	    
 	
 	/**Admin Funciones sobre Veterinario**/
 	
@@ -239,7 +245,35 @@ public class AdminController {
 		       } 
 		    }
 		  
+/*==========*/
+		  /**
+		     *Que un administrador puede borrar un cliente
+		     * @param user
+		     * @return
+		     */
+			  @DeleteMapping("/admin/cliente/{id}") 
+			    public  ResponseEntity<?> deleteCliente(@PathVariable Long id){
+			        
+			    	try {
 
+			    		/**comprobar que el correo que usa este admin,  existe en la base de datos **/
+			    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			            User usuario = serviUser.recogerInfoUserPorEmail(email);
+			            if (usuario !=null) {//si el admin existe
+			            	User clienteABorrar = serviUser.findById(id);//recogemos el usuario veterinario que deseamos borrar
+			            	serviUser.delete(clienteABorrar.getId());
+			            	return ResponseEntity.noContent().build();	
+			            }else {
+			            		throw new UsuarioNoExisteException();
+			           }
+			      
+			       }catch (AuthenticationException authExc){
+			       	throw new UsuarioNoExisteException() ;
+			       }
+			    	
+			    }
+
+			  
 		  
 	/**Exceptions**/
 	  
