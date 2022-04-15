@@ -1,15 +1,28 @@
 package com.example.demo.controller;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.hibernate.validator.internal.util.logging.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +36,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.error.ApiError;
 import com.example.demo.error.CitaExistedException;
@@ -62,7 +77,9 @@ public class UserController {
     @Autowired private UserService serviUser;
     @Autowired private JWTUtil jwtUtil;
    
-   
+   //crear un log
+    //private final Logger log = LoggerFactory.getLogger(UserController.class);
+    //importado desde org.slf4i
     
   /**Usuario**/
     
@@ -111,6 +128,7 @@ public class UserController {
        } 
     	
     }
+    
     /**En proceso
      * Metodo que permite borrar un cliente . Recoge desde el token para borrar el cliente
      * @return
@@ -148,6 +166,11 @@ public class UserController {
         User usuario = serviUser.recogerInfoUserPorEmail(email);
         
         	if (usuario !=null) {
+        		//if(!imagen.isEmpty()) {
+        		//	Path directorioRecursos = Paths.get("src//main//resources//static//uploads");
+        		//	String rootPath= directorioRecursos.toFile().getAbsolutePath();
+        			
+        		//}
         		mascotaServi.addMascota(mascota, usuario); 
 
         		return mascota;
@@ -187,6 +210,7 @@ public class UserController {
         }    
  
     }
+  
     
     /**
      * Mostramos una mascota por su id
@@ -234,6 +258,7 @@ public class UserController {
 			if (pet) {//*Si la mascota existe**/
 				
 				citaServi.deleteByPet(id);
+				mascotaServi.borrarFotoMascota(mascotaServi.encontrarId(id));
 				mascotaServi.delete(mascotaServi.encontrarId(id));
 				
 				return ResponseEntity.noContent().build();
@@ -284,6 +309,93 @@ public class UserController {
     public void throwException() {
         throw new IllegalArgumentException("\"La mascota no existe\"");
     }
+    
+ 
+    
+  /**--Imagenes mascotas--**/
+    
+    @PostMapping("/cliente/mascota/upload/{id}")
+    public ResponseEntity<?> upload(@RequestParam("archivo") MultipartFile archivo, @PathVariable Long id){
+    	Map<String, Object> response = new HashMap<>();
+    	
+    	try {
+    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            User usuario = serviUser.recogerInfoUserPorEmail(email);
+            if(usuario != null) {/**Si el usuario no es null**/
+            	
+            	Mascota mascota= mascotaServi.encontrarId(id);
+            	if(!archivo.isEmpty()) {
+            		//Hayq ue cambairle el nombre para que sea unico y no haya conflictos futuros
+            		//reemplazar los espacios en blanco por nada
+            		String nombreArchivo= UUID.randomUUID().toString() + "_" + archivo.getOriginalFilename().replace(" ", "");
+            		//recoge el directorio donde estas las fotos
+            		//importamos desde 
+            		Path directorioRecursos = Paths.get("uploads");
+            		//recogemos la ruta de la nueva foto
+            		Path rutaArchivo = Paths.get("uploads").resolve(nombreArchivo).toAbsolutePath();
+            		try {
+						Files.copy(archivo.getInputStream(), rutaArchivo);
+					} catch (IOException e) {
+						response.put("mensaje", "Has subido correctamente la foto"+ nombreArchivo);
+						response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
+				   		return new ResponseEntity<Map<String,Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+					}
+            		//hayq ue borrar la foto anterior, si ya tiene una. Esto añadir antes de borrar una mascota que borre su imagen
+            		String nombreFotoAnterior= mascota.getFoto();
+            		if(nombreFotoAnterior != null && nombreFotoAnterior.length() > 0) {
+            			//si la mascota tenia una foto anterior, la borramos de antes para no tener una foto huerfana extra
+            			mascotaServi.borrarFotoMascota(mascota);
+            			
+            		}
+            		mascota.setFoto(nombreArchivo);
+            		mascotaServi.guardar(mascota);
+            		response.put("mascota", mascota);
+            		response.put("mensaje", "Has subido correctamente la foto"+ nombreArchivo);
+            	}
+            	return new ResponseEntity<Map<String,Object>>(response,HttpStatus.CREATED);
+            	
+            }else {
+            	/**No existe el usuario**/
+            	 throw new UsuarioNoExisteException() ;
+            }
+    	}catch (AuthenticationException authExc){
+            throw new UsuarioNoExisteException() ;
+        }    
+ 
+    	
+    } 
+    
+    
+    
+    @GetMapping("uploads/img/nombreFoto:.+}") //que tendra un archivo que termina en punto y una expansion
+    public ResponseEntity<Resource> verFoto(@PathVariable String nombreFoto){
+    	//resource importado desde org.springframework.core.io
+    	
+		Path rutaArchivo = Paths.get("uploads").resolve(nombreFoto).toAbsolutePath();
+		Resource recurso= null;
+		try {
+			recurso = new UrlResource(rutaArchivo.toUri());
+		} catch (MalformedURLException e) {
+			
+			e.printStackTrace();
+		}
+		
+		if (!recurso.exists() && recurso.isReadable()) {
+			throw new RuntimeException("no pudo leerse");
+		}
+		
+		HttpHeaders cabecera = new HttpHeaders();
+		cabecera.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename\""+recurso.getFilename()+"\"");
+		//Urlresource importado desde org.springframework.core.io
+    	return new ResponseEntity<Resource>(recurso,cabecera,HttpStatus.OK);
+
+    }
+    
+    
+    
+    
+    
     
  
 	

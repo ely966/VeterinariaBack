@@ -31,7 +31,7 @@ public class Mascota {
 	private String tipo;
 	private String raza;
 	private int edad;
-	private String imagen;
+	private String foto;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JsonBackReference("userMascota")

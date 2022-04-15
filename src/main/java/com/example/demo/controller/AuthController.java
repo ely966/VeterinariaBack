@@ -1,6 +1,9 @@
 package com.example.demo.controller;
 
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +13,8 @@ import java.util.Optional;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.error.ApiError;
@@ -38,11 +44,13 @@ import com.example.demo.security.JWTUtil;
 import com.example.demo.service.UserService;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
+
 public class AuthController {
 
     @Autowired private UserRepo userRepo;
@@ -171,6 +179,34 @@ public class AuthController {
     	}catch (AuthenticationException authExc){
        	 	throw new UsuarioNoExisteException() ;
        } 
+    }
+    
+    
+    
+    
+    
+    @GetMapping("uploads/img/{nombreFoto:.+}") //que tendra un archivo que termina en punto y una expansion
+    public ResponseEntity<Resource> verFoto(@PathVariable String nombreFoto){
+    	//resource importado desde org.springframework.core.io
+    	
+		Path rutaArchivo = Paths.get("uploads").resolve(nombreFoto).toAbsolutePath();
+		Resource recurso= null;
+		try {
+			recurso = new UrlResource(rutaArchivo.toUri());
+		} catch (MalformedURLException e) {
+			
+			e.printStackTrace();
+		}
+		
+		if (!recurso.exists() && recurso.isReadable()) {
+			throw new RuntimeException("no pudo leerse");
+		}
+		
+		HttpHeaders cabecera = new HttpHeaders();
+		cabecera.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename\""+recurso.getFilename()+"\"");
+		//Urlresource importado desde org.springframework.core.io
+    	return new ResponseEntity<Resource>(recurso,cabecera,HttpStatus.OK);
+
     }
     
     

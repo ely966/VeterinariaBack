@@ -1,5 +1,8 @@
 package com.example.demo.service;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +35,7 @@ public class MascotaService {
 		newMascota.setRaza(mascota.getRaza());
 		newMascota.setEdad(mascota.getEdad());
 		newMascota.setUsuario(cliente);
-		newMascota.setImagen(mascota.getImagen());
+		
 		mascotaRepo.save(newMascota);
 		List<Mascota>pets=mascotaRepo.findAll();
 		return newMascota;
@@ -64,6 +67,18 @@ public class MascotaService {
 	public Boolean comprobarporId(Long id) {
 		
 		return mascotaRepo.existsById(id);
+		
+		
+	}
+	/**
+	 * Guardar una mascota 
+	 * @param id
+	 * @return 
+	 * @return booleean
+	 */
+	public  void guardar(Mascota mascota) {
+		
+		mascotaRepo.save(mascota);
 		
 		
 	}
@@ -99,6 +114,25 @@ public class MascotaService {
 			}
 		}
 		
+	}
+	/**
+	 * Borrar la imagend e una mascota
+	 * @param mascota
+	 */
+	public void borrarFotoMascota (Mascota mascota) {
+		//hayq ue borrar la foto anterior, si ya tiene una. Esto añadir antes de borrar una mascota que borre su imagen
+		String nombreFotoAnterior= mascota.getFoto();
+		if(nombreFotoAnterior != null && nombreFotoAnterior.length() > 0) {
+			//obtenermos la ruta de la imagen
+			Path rutaFotoanterior = Paths.get("uploads").resolve(nombreFotoAnterior).toAbsolutePath();
+			//lo convertimos en un archivos la foto anterior
+			//importamos de java.io
+			File archivoFotoAnterior = rutaFotoanterior.toFile();
+			//comprobamos que hay un archivo que existe y se puede leer
+			if(archivoFotoAnterior.exists() && archivoFotoAnterior.canRead()) {
+				archivoFotoAnterior.delete();
+			}
+		}
 	}
 	/** 
 	 * Metodo para buscar las mascotas de un cliente
