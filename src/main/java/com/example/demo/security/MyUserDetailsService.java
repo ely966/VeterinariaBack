@@ -31,7 +31,12 @@ public class MyUserDetailsService implements UserDetailsService {
                      email,
                      user.getPassword(),
                      Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        }
+        }else if (user.getRole().compareTo("VETERINARIO") ==0) {//Si el role que tiene es veterinario
+       	 return new org.springframework.security.core.userdetails.User(
+                 email,
+                 user.getPassword(),
+                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_VETERINARIO")));
+    }
         return new org.springframework.security.core.userdetails.User(
                 email,
                 user.getPassword(),

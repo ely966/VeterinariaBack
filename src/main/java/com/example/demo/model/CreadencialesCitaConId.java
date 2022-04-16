@@ -28,6 +28,7 @@ public class CreadencialesCitaConId {
 	private Long petid;
 	private String motivo;
 	private Long idVeterinario;
+	private int numeroContacto;
 	
 	public CreadencialesCitaConId() {
 		super();

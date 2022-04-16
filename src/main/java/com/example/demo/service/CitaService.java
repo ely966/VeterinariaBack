@@ -56,9 +56,10 @@ public class CitaService {
 				nuevaCita.setPet(mascotaRepo.findById(pet).get());
 				nuevaCita.setIdVeterinario(cita.getIdVeterinario());
 				nuevaCita.setMotivo(cita.getMotivo());
+				//añadimos el numero del cliente
+				nuevaCita.setNumeroContacto(usuario.getTelefono());
 				/**Guardamos la cita**/
-				
-					citaRepo.save(nuevaCita);
+				citaRepo.save(nuevaCita);
 				
 				
 			}
@@ -105,6 +106,8 @@ public class CitaService {
 		cita.setIdVeterinario(null);
 		//Borramos la fecha para que no salte la contradiccion de que, es una fecha del pasado si llega el caso
 		cita.setFecha(null);
+		//borramos el numero
+		cita.setNumeroContacto(0);
 		//**Guardamos la cita sin uniones**/
 		citaRepo.save(cita);
 		citaRepo.delete(cita);/**Eliminamos la cita**/
@@ -164,6 +167,12 @@ public class CitaService {
 			citaEditada.setHora(cita.getFecha());
 			citaEditada.setFechaCompleta(cita.getFecha());
 		}
+		
+		//comprobamos que el numero de contacto esta vacio o no
+		if(cita.getNumeroContacto() > 0) {
+			citaEditada.setNumeroContacto(cita.getNumeroContacto());
+		}
+		
 		
 		Mascota mascota= mascotaServi.encontrarId(cita.getPetid());
 		citaEditada.setPet(mascotaServi.encontrarId(cita.getPetid()));

@@ -23,7 +23,7 @@ public class VeterinarioService {
 	
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private CitaService citaServi;
-
+    @Autowired private CitasRepository citaRepo;
     @Autowired private UserService serviUser;
     
     
@@ -79,5 +79,16 @@ public class VeterinarioService {
     }
     
   
+	
+    /**
+     * Busca las citas que tenga el veterinario
+     * @param id del veterinario
+     * @return lista de citas que debe atender el veterinario
+     */
+    public List<Cita> citasDelVeterinario(Long idVeterinario) {
+    	List<Cita> citasVeterinario = new ArrayList();
+    	citasVeterinario = citaRepo.findByIdVeterinario(idVeterinario).get();
+    	return citasVeterinario;
+    }
 
 }

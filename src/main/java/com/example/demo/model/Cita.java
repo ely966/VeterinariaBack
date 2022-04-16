@@ -44,7 +44,7 @@ public class Cita {
 	private User cliente;
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Mascota pet;
-	
+	private int numeroContacto; //numero de conectato del cliente para que el veterinario pueda llamar
 	//Añadir veterinario
 	private Long idVeterinario;
 	@Future
