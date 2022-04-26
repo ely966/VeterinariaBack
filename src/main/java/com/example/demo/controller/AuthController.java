@@ -9,8 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -71,7 +70,7 @@ public class AuthController {
         
     	try {
     	String encodedPass = passwordEncoder.encode(user.getPassword());
-        
+    	
     	  /**comprobar que el correo que usa este nuevo usuario, no existe en la base de datos **/
         	String token =null;
         	Optional<User> usercorreo = userRepo.findByEmail(user.getEmail());
@@ -102,7 +101,7 @@ public class AuthController {
     @PostMapping("/auth/login")
     public Map<String, Object> loginHandler(@RequestBody LoginCredentials body){
     	   /**activar init**/
-    
+    	TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     	try {
     		UsernamePasswordAuthenticationToken authInputToken =
                     new UsernamePasswordAuthenticationToken(body.getEmail(), body.getPassword());
@@ -117,8 +116,7 @@ public class AuthController {
         }
     }
     
-    
-    
+  
     
     @GetMapping(value = "/auth/throwException")
     public void throwException() {

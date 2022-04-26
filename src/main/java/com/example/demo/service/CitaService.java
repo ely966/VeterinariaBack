@@ -3,6 +3,8 @@ package com.example.demo.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,8 @@ public class CitaService {
 			if (citaConFechaCompleta ==null) {//Si esa fecha esta disponible
 				/**Añadimos cada datos de la cita**/
 				nuevaCita.setCliente(usuario);
+				/**Antes que nada loq ue haremos es restarle 2 horas a la fecha para que no las añada extra por nuetsra zona horaria*/
+				//Date fechaFix=restarHorasFecha(cita.getFecha(), 2);
 				/**Debemos ir comprobando la fecha**/
 				nuevaCita.setFecha(cita.getFecha());
 				nuevaCita.setHora(cita.getFecha());
@@ -68,7 +72,13 @@ public class CitaService {
 	}
 	
 	
-
+	public Date restarHorasFecha(Date fecha, int horas){
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(fecha); // Configuramos la fecha que se recibe
+		calendar.add(Calendar.HOUR, horas);  // numero de horas a añadir, o restar en caso de horas<0
+		return calendar.getTime(); // Devuelve el objeto Date con las nuevas horas añadidas
+		      }
 	
 	/**
 	 * Encontrar una cita por su id
@@ -158,11 +168,16 @@ public class CitaService {
 	 */
 	
 	public Cita editarCita(CreadencialesCitaConId cita,Long idCita, User usuario, Long id) {
+		Cita datosAntiguosCita= citaRepo.findById(idCita).get();
 		Cita citaEditada = new Cita();
 		citaEditada.setId(idCita);
 		citaEditada.setCliente(usuario);
 		//comprobamos si edito la fecha. Si esta vacio no se edita
-		if(cita.getFecha() == null) {
+		if(cita.getFecha() == null) {//si de la edicion esta vacio, sera la fecha antigua
+			citaEditada.setFecha(datosAntiguosCita.getFecha());
+			citaEditada.setHora(datosAntiguosCita.getFecha());
+			citaEditada.setFechaCompleta(datosAntiguosCita.getFecha());
+		}else {//si haya una fecha nueva a añadir, se le añade de las credenciales de cita recibidas
 			citaEditada.setFecha(cita.getFecha());
 			citaEditada.setHora(cita.getFecha());
 			citaEditada.setFechaCompleta(cita.getFecha());
