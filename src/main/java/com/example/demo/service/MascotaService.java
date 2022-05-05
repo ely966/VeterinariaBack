@@ -6,10 +6,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.error.MascotaExistedException;
 import com.example.demo.model.Mascota;
@@ -115,30 +117,8 @@ public class MascotaService {
 		}
 		
 	}
-	/**
-	 * Borrar la imagend e una mascota
-	 * @param mascota
-	 */
-	public void borrarFotoMascota (Mascota mascota) {
-		//hayq ue borrar la foto anterior, si ya tiene una. Esto añadir antes de borrar una mascota que borre su imagen
-		String nombreFotoAnterior= mascota.getFoto();
-		if(nombreFotoAnterior != null && nombreFotoAnterior.length() > 0) {
-			//obtenermos la ruta de la imagen
-			Path rutaFotoanterior = Paths.get("uploads").resolve(nombreFotoAnterior).toAbsolutePath();
-			//lo convertimos en un archivos la foto anterior
-			//importamos de java.io
-			File archivoFotoAnterior = rutaFotoanterior.toFile();
-			//comprobamos que hay un archivo que existe y se puede leer
-			if(archivoFotoAnterior.exists() && archivoFotoAnterior.canRead()) {
-				archivoFotoAnterior.delete();
-			}
-		}
-	}
-	/** 
-	 * Metodo para buscar las mascotas de un cliente
-	 * @param cliente
-	 * @return lista de las mascotas que e pertenece al cliente
-	 */
+
+	
 	/**
 	 * Otra forma de obtener las mascotas del cliente
 	 * @param cliente
@@ -166,6 +146,86 @@ public class MascotaService {
 
 		
 	}
+	
+	/**-------------------------Imagenes de Mascotas---------------**/
+	
+	/**
+	 * Metodo que permite cambiarle el nombre del archivo, para que si coinciden nombre con otr aimagen o contiene espacios, evitar errores y se guarde correctamente.
+	 * @param archivo
+	 * @return un string que seria el nombre del archivo
+	 */
+	public String cambiarNombreFotoMascota (MultipartFile archivo) {
+		//Hayq ue cambairle el nombre para que sea unico y no haya conflictos futuros
+		//reemplazar los espacios en blanco por nada
+		String nombreArchivo= UUID.randomUUID().toString() + "_" + archivo.getOriginalFilename().replace(" ", "");
+		return nombreArchivo;
+	}
+	
+	/*================*/
+	/**
+	 * Metodo que recogerá la ruta de la nueva foto que será añadida
+	 * @param nombreArchivo
+	 * @return la ruta 
+	 */
+	public Path recogerRutaDeLaFoto(String nombreArchivo) {
+		//recoge el directorio donde estas las fotos
+		//importamos desde 
+		Path directorioRecursos = Paths.get("uploads");
+		//recogemos la ruta de la nueva foto
+		Path rutaArchivo = Paths.get("uploads").resolve(nombreArchivo).toAbsolutePath();
+		return rutaArchivo;
+	}
+	
+	/*================*/
+	/**
+	 * Este metodo comprueba si la mascota, sí tiene una foto anterior, y sí tenía una foto anterior, al borrará
+	 * @param mascota
+	 */
+	public void comprobarSiLaMascotaTieneUnaFotoYBorrarlaSiTenia(Mascota mascota) {
+		String nombreFotoAnterior= mascota.getFoto();
+		if(nombreFotoAnterior != null && nombreFotoAnterior.length() > 0) {
+			//si la mascota tenia una foto anterior, la borramos de antes para no tener una foto huerfana extra
+			borrarFotoMascota(mascota);
+			
+		}
+	}
+	/*================*/
+	
+	/**
+	 * Borrar la imagen de la mascota
+	 * @param mascota
+	 */
+	public void borrarFotoMascota (Mascota mascota) {
+		//hayq ue borrar la foto anterior, si ya tiene una. Esto añadir antes de borrar una mascota que borre su imagen
+		String nombreFotoAnterior= mascota.getFoto();
+		if(nombreFotoAnterior != null && nombreFotoAnterior.length() > 0) {
+			//obtenermos la ruta de la imagen
+			//Importar path de java.nio.file
+			Path rutaFotoanterior = Paths.get("uploads").resolve(nombreFotoAnterior).toAbsolutePath();
+			//lo convertimos en un archivos la foto anterior
+			//importamos de java.io
+			File archivoFotoAnterior = rutaFotoanterior.toFile();
+			//comprobamos que hay un archivo que existe y se puede leer
+			if(archivoFotoAnterior.exists() && archivoFotoAnterior.canRead()) {
+				archivoFotoAnterior.delete();
+			}
+		}
+	}
+	
+	/*================*/
+	/**
+	 * Recoge la mascota y el nombre del fichero, y añade a la mascota, el nombre del archivo.
+	 * @param mascota
+	 * @param nombreArchivo
+	 * @return mascota con la foto incluida
+	 */
+	public Mascota incluirALaMascotaLaImagen(Mascota mascota, String nombreArchivo) {
+		mascota.setFoto(nombreArchivo);
+		return mascota;
+		
+	}
+	
+	
 	
 	
 }

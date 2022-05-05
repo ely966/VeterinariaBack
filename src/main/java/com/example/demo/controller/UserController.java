@@ -314,42 +314,45 @@ public class UserController {
     
   /**--Imagenes mascotas--**/
     
+    /**Metodo que permite añadir/actualizar la foto de una mascota, que se reconoce por su id.
+     * @PostMapping("/cliente/mascota/upload/{id}")
+     * @param archivo, que seria MultipartFile, para que permita recoger un fichero, y id de la mascota.
+     * @param id
+     * @return
+     */
     @PostMapping("/cliente/mascota/upload/{id}")
     public ResponseEntity<?> upload(@RequestParam("archivo") MultipartFile archivo, @PathVariable Long id){
     	Map<String, Object> response = new HashMap<>();
     	
     	try {
+    		//**Recogemos desde el token de la cabecera, el email.Esto lo hará si existe**/
     		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            User usuario = serviUser.recogerInfoUserPorEmail(email);
-            if(usuario != null) {/**Si el usuario no es null**/
-            	
-            	Mascota mascota= mascotaServi.encontrarId(id);
-            	if(!archivo.isEmpty()) {
-            		//Hayq ue cambairle el nombre para que sea unico y no haya conflictos futuros
-            		//reemplazar los espacios en blanco por nada
-            		String nombreArchivo= UUID.randomUUID().toString() + "_" + archivo.getOriginalFilename().replace(" ", "");
-            		//recoge el directorio donde estas las fotos
-            		//importamos desde 
-            		Path directorioRecursos = Paths.get("uploads");
-            		//recogemos la ruta de la nueva foto
-            		Path rutaArchivo = Paths.get("uploads").resolve(nombreArchivo).toAbsolutePath();
+            /**Desde el correo sacamos el usuario**/
+    		User usuario = serviUser.recogerInfoUserPorEmail(email);
+            /**Comprobamos si el usuario existe*/
+    		if(usuario != null) {/**Si el usuario no es null**/
+    			Mascota mascota= mascotaServi.encontrarId(id);
+            	if(!archivo.isEmpty()) {/*Si el archivo no esta vacio*/
+            		//Hay que cambiarle el nombre para que sea unico y no haya conflictos futuros. LLamamos al metodo del servicio de mascotas
+            		String nombreArchivo= mascotaServi.cambiarNombreFotoMascota(archivo);
+            		//recogemos la ruta de la nueva foto, desde el nombre del archivo creado anteriormente
+            		Path rutaArchivo = mascotaServi.recogerRutaDeLaFoto(nombreArchivo);
+            		
             		try {
-						Files.copy(archivo.getInputStream(), rutaArchivo);
+            			/*Mover/copiar  en bite el archivo que hemos subido al servidor a la ruta escogida.*/
+						Files.copy(archivo.getInputStream(), rutaArchivo); //asi guardara la iamgen en esa ruta
 					} catch (IOException e) {
-						response.put("mensaje", "Has subido correctamente la foto"+ nombreArchivo);
 						response.put("error", e.getMessage().concat(": ").concat(e.getCause().getMessage()));
 				   		return new ResponseEntity<Map<String,Object>>(HttpStatus.INTERNAL_SERVER_ERROR);
 
 					}
-            		//hayq ue borrar la foto anterior, si ya tiene una. Esto añadir antes de borrar una mascota que borre su imagen
-            		String nombreFotoAnterior= mascota.getFoto();
-            		if(nombreFotoAnterior != null && nombreFotoAnterior.length() > 0) {
-            			//si la mascota tenia una foto anterior, la borramos de antes para no tener una foto huerfana extra
-            			mascotaServi.borrarFotoMascota(mascota);
-            			
-            		}
-            		mascota.setFoto(nombreArchivo);
+            		/*Comprobamos que si tiene una foto ya guardada la mascota. Por ello llamaremos al siguiente metodo en servicio de mascota. Si ya tenia una foto, se borrará esta*/
+            		mascotaServi.comprobarSiLaMascotaTieneUnaFotoYBorrarlaSiTenia(mascota);
+            		/*Añadimos el nombre d ela foto a la mascota*/
+            		mascotaServi.incluirALaMascotaLaImagen(mascota, nombreArchivo);
+            		/*Guardamos la mascota*/
             		mascotaServi.guardar(mascota);
+            		
             		response.put("mascota", mascota);
             		response.put("mensaje", "Has subido correctamente la foto"+ nombreArchivo);
             	}
@@ -359,7 +362,7 @@ public class UserController {
             	/**No existe el usuario**/
             	 throw new UsuarioNoExisteException() ;
             }
-    	}catch (AuthenticationException authExc){
+    	}catch (AuthenticationException authExc){/*Si el usuario no existe*/
             throw new UsuarioNoExisteException() ;
         }    
  
@@ -367,7 +370,11 @@ public class UserController {
     } 
     
     
-    
+    /**
+     * Esto sirve para recoger una imagen y mostrar en la web
+     * @param nombreFoto
+     * @return
+     */
     @GetMapping("uploads/img/nombreFoto:.+}") //que tendra un archivo que termina en punto y una expansion
     public ResponseEntity<Resource> verFoto(@PathVariable String nombreFoto){
     	//resource importado desde org.springframework.core.io
@@ -382,7 +389,7 @@ public class UserController {
 		}
 		
 		if (!recurso.exists() && recurso.isReadable()) {
-			throw new RuntimeException("no pudo leerse");
+			throw new RuntimeException("No se pudo leerse");
 		}
 		
 		HttpHeaders cabecera = new HttpHeaders();
