@@ -125,7 +125,7 @@ public class CitaService {
 	}
 	
 	/**
-	 * Borrar las citas de una mascota
+	 * Borrar las citas de una mascota, sobretodo si queremos borrar dicha mascota
 	 * @param id de pet
 	 */
 	
@@ -160,7 +160,17 @@ public class CitaService {
 	}
 	
 	/**
-	 * Edtar una cita
+	 * Recoge los datos de una cita por su id y devuelve el cliente
+	 * @param id
+	 * @return cliente
+	 */
+	public User recogerClienteDeCita (Long id) {
+		Cita datos=citaRepo.findById(id).get();
+		return datos.getCliente();
+	}
+	
+	/**
+	 * Editar una cita
 	 * @param cita
 	 * @param usuario
 	 * @param id
@@ -192,6 +202,36 @@ public class CitaService {
 		Mascota mascota= mascotaServi.encontrarId(cita.getPetid());
 		citaEditada.setPet(mascotaServi.encontrarId(cita.getPetid()));
 		citaEditada.setMotivo(cita.getMotivo());
+		citaEditada.setIdVeterinario(datosAntiguosCita.getIdVeterinario());
+		citaRepo.save(citaEditada);
+		return citaEditada;
+	}
+	
+	public Cita editarCitaVeterinario(CreadencialesCitaConId cita,Long idCita) {
+		Cita datosAntiguosCita= citaRepo.findById(idCita).get();
+		Cita citaEditada = new Cita();
+		citaEditada.setId(idCita);
+		citaEditada.setCliente(datosAntiguosCita.getCliente());
+		//comprobamos si edito la fecha. Si esta vacio no se edita
+		if(cita.getFecha() == null) {//si de la edicion esta vacio, sera la fecha antigua
+			citaEditada.setFecha(datosAntiguosCita.getFecha());
+			citaEditada.setHora(datosAntiguosCita.getFecha());
+			citaEditada.setFechaCompleta(datosAntiguosCita.getFecha());
+		}else {//si haya una fecha nueva a añadir, se le añade de las credenciales de cita recibidas
+			citaEditada.setFecha(cita.getFecha());
+			citaEditada.setHora(cita.getFecha());
+			citaEditada.setFechaCompleta(cita.getFecha());
+		}
+		
+		//comprobamos que el numero de contacto esta vacio o no
+		if(cita.getNumeroContacto() > 0) {
+			citaEditada.setNumeroContacto(cita.getNumeroContacto());
+		}
+		citaEditada.setIdVeterinario(datosAntiguosCita.getIdVeterinario());
+
+		citaEditada.setPet(datosAntiguosCita.getPet());
+		citaEditada.setMotivo(cita.getMotivo());
+		citaEditada.setNumeroContacto(datosAntiguosCita.getNumeroContacto());
 		citaRepo.save(citaEditada);
 		return citaEditada;
 	}

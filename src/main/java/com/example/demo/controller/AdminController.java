@@ -124,6 +124,43 @@ public class AdminController {
 	       } 
 	    	
 	    }
+	    //*Recoger valor de un usuario*/
+	    
+	    @GetMapping("/admin/cliente/{correo}")
+	    public User infoCliente (@PathVariable String correo) {
+	    	try {
+	            return serviUser.recogerInfoUserPorEmail(correo);
+	    	}catch (AuthenticationException authExc){
+	       	 	throw new UsuarioNoExisteException() ;
+	       } 
+	    }
+	    
+	    /**
+	     *Que un administrador puede cmabair al contraseña de cualquier otro usuario
+	     * @param datosUser que es la contarseña nueva, user que es el usuario que cambaira la pass
+	     * @return
+	     */
+		  @PutMapping("/admin/user/{id}") 
+		    public User cambiarPasswordUser(@RequestBody CredencialesEditarUser datosUser, @PathVariable Long id ){
+		        
+		    	try {
+		    		String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		            //Comprobar que existe el usuario del token del administrador
+		    		User usuario = serviUser.recogerInfoUserPorEmail(email);
+			        /**Comprueba que el usuario a editar existe**/
+			    	User usercorreo = serviUser.findById(id);
+			        if(usercorreo != null) {/**Si el usuario existe**/
+			    	  
+			    	   return serviUser.edit(datosUser, usercorreo);
+			    	   }
+			        else {
+			        	throw new UsuarioNoExisteException();
+			        	}
+			    }catch (AuthenticationException authExc){
+		       	throw new UsuarioNoExisteException() ;
+		       }
+		    	
+		    }
 /**=================================================================================================**/
 	    
  

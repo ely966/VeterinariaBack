@@ -138,7 +138,7 @@ public class UserService {
 	 * @return usuario
 	 */
 	public User findById (Long id) {
-		return userRepo.getById(id);
+		return userRepo.findById(id).get();
 	}
 	/**Añadir un usuario
 	 * 

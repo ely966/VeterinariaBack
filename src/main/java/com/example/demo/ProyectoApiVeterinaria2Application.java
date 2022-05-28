@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilde
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.demo.model.Mascota;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepo;
 import com.example.demo.service.UserService;
@@ -46,7 +47,10 @@ public class ProyectoApiVeterinaria2Application {
 							new User("lucinda", "lucinda23@gmail.com", "Calle real",611344990,passwordEncoder.encode("lucinda"), "CLIENTE")
 							
 							));
+			
 		};
+		
+
 		
 							
 	}
