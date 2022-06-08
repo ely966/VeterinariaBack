@@ -64,7 +64,7 @@ public class VeterinarioController {
 		    }
 		  
 		  /**
-		     * El veterinario puede editar sus atos
+		     * El veterinario puede editar sus datos
 		     * @param veterinario editado
 		     * @return
 		     */
